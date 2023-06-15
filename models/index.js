@@ -29,7 +29,7 @@ const db = {}
 db.Sequelize = Sequelize;
 db.sequelize = sequelize;
 
-db.products = require("./products.js")(sequelize, Sequelize);
-db.wholeSales = require("./wholesale_url.js")(sequelize, Sequelize);
+db.products = require("./mcs_product.js")(sequelize, Sequelize);
+db.stockAvailable = require("./mcs_stock_available.js")(sequelize, Sequelize);
 
 module.exports = db;

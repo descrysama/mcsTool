@@ -5,7 +5,12 @@ const products = db.products;
 async function getAll(req, res) {
 
   try {
-    const allProducts = await products.findAll();
+    const allProducts = await products.findAll({
+      include: {
+        model: "mcs_stock_available",
+        as: 'stockAvailable',
+      },
+    });
     if (!allProducts) {
       return res.status(500).json({error: "Aucun produit trouvés."});
     }

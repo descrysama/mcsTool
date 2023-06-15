@@ -1,17 +1,18 @@
 var DataTypes = require("sequelize").DataTypes;
+var _mcs_product = require("./mcs_product");
+var _mcs_stock_available = require("./mcs_stock_available");
 var _products = require("./products");
-var _wholesale_url = require("./wholesale_url");
 
 function initModels(sequelize) {
+  var mcs_product = _mcs_product(sequelize, DataTypes);
+  var mcs_stock_available = _mcs_stock_available(sequelize, DataTypes);
   var products = _products(sequelize, DataTypes);
-  var wholesale_url = _wholesale_url(sequelize, DataTypes);
 
-  wholesale_url.belongsTo(products, { as: "product", foreignKey: "product_id"});
-  products.hasMany(wholesale_url, { as: "wholesale_urls", foreignKey: "product_id"});
 
   return {
+    mcs_product,
+    mcs_stock_available,
     products,
-    wholesale_url,
   };
 }
 module.exports = initModels;
