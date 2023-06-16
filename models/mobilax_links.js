@@ -1,31 +1,23 @@
 const Sequelize = require('sequelize');
 module.exports = function(sequelize, DataTypes) {
-  return sequelize.define('products', {
+  return sequelize.define('mobilax_links', {
     id: {
+      autoIncrement: true,
       type: DataTypes.INTEGER,
       allowNull: false,
       primaryKey: true
     },
-    reference: {
-      type: DataTypes.STRING(255),
-      allowNull: true
+    id_product: {
+      type: DataTypes.INTEGER,
+      allowNull: false
     },
-    prix_achat: {
-      type: DataTypes.DECIMAL(10,2),
-      allowNull: true
-    },
-    prix_vente: {
-      type: DataTypes.DECIMAL(10,2),
-      allowNull: true
-    },
-    stock: {
-      type: DataTypes.BOOLEAN,
-      allowNull: true,
-      defaultValue: 1
+    url: {
+      type: DataTypes.STRING(512),
+      allowNull: false
     }
   }, {
     sequelize,
-    tableName: 'products',
+    tableName: 'mobilax_links',
     timestamps: false,
     indexes: [
       {
