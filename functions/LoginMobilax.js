@@ -7,13 +7,13 @@ async function LoginMobilax() {
     password: 'Google59'
   };
 
-  console.log(JSON.stringify({ MOBILAX: 'going into login process...' }));
+  console.log("going into login process...");
 
   try {
     const loginResponse = await axios.post(loginUrl, loginPayload);
 
     if (loginResponse.status === 200) {
-      console.log(JSON.stringify({ MOBILAX: 'Login successful' }));
+      console.log("Login successful");
       const authToken = loginResponse.data.auth.token;
       return authToken;
     } else {

@@ -9,7 +9,7 @@ const fetchDataUtopya = async(driver, array) => {
             id_product: link.id_product,
             reference: "",
             quantity: 0,
-            price: 0,
+            wholesale_price: 0,
             ean13: ""
 
         };
@@ -29,23 +29,24 @@ const fetchDataUtopya = async(driver, array) => {
 
             const priceElement = await driver.wait(until.elementLocated(By.css('.price-box .price')), 2000);
             const priceText = await priceElement.getText();
-            const price = parseFloat(priceText.replace('€', '.'));
-            object = { ...object, price };
+            const wholesale_price = parseFloat(priceText.replace('€', '.'));
+            object = { ...object, wholesale_price };
 
-            const addToCartButton = await driver.wait(until.elementLocated(By.css('button.action.primary.tocart[title="Ajouter au panier"]')),2000);
-            if(addToCartButton) {
+            try {
+                const addToCartButton = await driver.wait(until.elementLocated(By.css('button.action.primary.tocart[title="Ajouter au panier"]')),2000);
                 object = { ...object, quantity: 99 };
-            } else {
+            } catch(error) {
+                console.log(error)
                 object = { ...object, quantity: 0 };
             }
 
         } catch {
-            console.log('')
+            console.log('error')
         }
 
         let findIndex = final_array.findIndex((item) => item.id_product == object.id_product);
         if(findIndex > -1) {
-            if(object.price < final_array[findIndex].price) {
+            if(object.wholesale_price < final_array[findIndex].wholesale_price) {
                 final_array.splice(findIndex, 1, object)
             }
 
