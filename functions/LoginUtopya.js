@@ -7,7 +7,7 @@ async function waitForElement(driver, selector, timeout) {
   await driver.wait(until.elementIsVisible(driver.findElement(By.css(selector))), timeout);
 }
 
-async function Login(headless) {
+async function LoginUtopya(headless) {
   try {
     const options = new Options();
     
@@ -47,5 +47,5 @@ async function Login(headless) {
 }
 
 module.exports = {
-  Login
+  LoginUtopya
 }

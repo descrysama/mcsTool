@@ -4,9 +4,13 @@ const products = db.products;
 const mcs_stock_available = db.stockAvailable;
 const utopya_links = db.utopyaLinks;
 const mobilax_links = db.mobilaxLinks;
+const mobilaxBrandUrls = db.mobilaxBrandUrls;
 
-const { Login } = require('../functions/Login');
+const { LoginUtopya } = require('../functions/LoginUtopya');
+const { LoginMobilax } = require('../functions/LoginMobilax');
+
 const { fetchDataUtopya } = require("../functions/fetchDataUtopya");
+const { fetchDataMobilax } = require("../functions/fetchDataMobilax");
 
 async function getAll(req, res) {
 
@@ -91,17 +95,26 @@ async function get(req, res) {
 }
 
 async function compareSupplier(req, res) {
-  const JsonCookies = await Login(true);
+  //Login utopya avec webdriver
+  // const utopyaLogged = await LoginUtopya(true);
+
+  // Login mobilax avec une simple methode POST
+  const mobilaxLogged = await LoginMobilax();
+
+  // Recupération des produits stockés (prestashop)
   const mcs_products = await products.findAll({ attributes: ['id_product', 'ean13', 'price', 'wholesale_price', 'reference'] });
 
-  // Liens des différents suppliers
+  // Liens des différents suppliers à comparer
   const mobilaxLinksData = await mobilax_links.findAll();
   const utopyaLinksData = await utopya_links.findAll();
 
+  // Produits mobilax recupérés par les api.
+  const allMobilaxApis = await mobilaxBrandUrls.findAll();
 
-  let FetchdataofUtopya = await fetchDataUtopya(JsonCookies, parsedValues(utopyaLinksData));
+  // let FetchdataofUtopya = await fetchDataUtopya(JsonCookies, parsedValues(utopyaLinksData));
+  let fetchDataOfMobilax = await fetchDataMobilax(mobilaxLogged, parsedValues(mobilaxLinksData), parsedValues(allMobilaxApis))
 
-  return res.json({destru: FetchdataofUtopya})
+  return res.json({destru: fetchDataOfMobilax})
 }
  
 
