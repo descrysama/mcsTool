@@ -36,7 +36,6 @@ const fetchDataUtopya = async(driver, array) => {
                 const addToCartButton = await driver.wait(until.elementLocated(By.css('button.action.primary.tocart[title="Ajouter au panier"]')),2000);
                 object = { ...object, quantity: 99 };
             } catch(error) {
-                console.log(error)
                 object = { ...object, quantity: 0 };
             }
 

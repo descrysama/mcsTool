@@ -5,6 +5,7 @@ const mcs_stock_available = db.stockAvailable;
 const utopya_links = db.utopyaLinks;
 const mobilax_links = db.mobilaxLinks;
 const mobilaxBrandUrls = db.mobilaxBrandUrls;
+const mcsImages = db.mcsImages;
 
 const { LoginUtopya } = require('../functions/LoginUtopya');
 const { LoginMobilax } = require('../functions/LoginMobilax');
@@ -25,9 +26,16 @@ async function getAll(req, res) {
           where: { id_product: product.id_product },
           attributes: ['quantity'],
         });
+
+        const images = await mcsImages.findOne({
+          where: { id_product: product.id_product }
+        })
     
         return {
           ...product.toJSON(),
+          price: parseFloat(product.price),
+          wholesale_price: parseFloat(product.wholesale_price),
+          image_url: images ? `https://mcs-parts.fr/api/images/products/${product.id_product}/${images.id_image}?ws_key=YLAUHMGVHQRWWQ8M4HLHTUED27DAJ5G7` : null,
           quantity: stockAvailable ? stockAvailable.quantity : null,
           margin_percentage: stockAvailable.quantity ? ((product.price - product.wholesale_price) / product.price) * 100 : null,
           margin_value: stockAvailable.quantity ? (product.price - product.wholesale_price) : null
@@ -56,9 +64,6 @@ async function get(req, res) {
   const skip = (page - 1) * 20;
   const limit = 20;
 
-  const login = await Login(true);
-  console.log(login)
-
   try {
     const allProducts = await products.findAll({
       attributes: ['id_product', 'ean13', 'price', 'wholesale_price', 'reference'],
@@ -73,8 +78,16 @@ async function get(req, res) {
           attributes: ['quantity'],
         });
     
+
+        const images = await mcsImages.findOne({
+          where: { id_product: product.id_product }
+        })
+    
         return {
           ...product.toJSON(),
+          price: parseFloat(product.price),
+          wholesale_price: parseFloat(product.wholesale_price),
+          image_url: images ? `https://mcs-parts.fr/api/images/products/${product.id_product}/${images.id_image}?ws_key=YLAUHMGVHQRWWQ8M4HLHTUED27DAJ5G7` : null,
           quantity: stockAvailable ? stockAvailable.quantity : null,
           margin_percentage: stockAvailable.quantity ? ((product.price - product.wholesale_price) / product.price) * 100 : null,
           margin_value: stockAvailable.quantity ? (product.price - product.wholesale_price) : null
@@ -120,12 +133,30 @@ async function compareSupplier(req, res) {
 
   const final_array = compareBoth(fetchDataOfMobilax, FetchdataofUtopya)
 
+  for(const item of final_array) {
+    await products.update(
+      {
+        reference: item.reference,
+        wholesale_price: item.wholesale_price,
+        ean13: item.ean13
+      },
+      {
+        where : {id_product: item.id_product}
+      }
+    )
+  }
   return res.json(final_array)
 }
  
 
 
 
+
+
+
+
+
+//external function
 const parsedValues = (array) => {
   let parsedArray = [];
   array.forEach(item => parsedArray.push(item.dataValues));
