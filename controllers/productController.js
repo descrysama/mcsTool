@@ -40,11 +40,21 @@ async function getAll(req, res) {
         const config = await mcsConfig.findOne({
           where: {id: 1}
         });
+
+        const utopya_urls = await utopya_links.findAll({
+          where: { id_product: product.id_product }
+        })
+
+        const mobilax_urls = await mobilax_links.findAll({
+          where: { id_product: product.id_product }
+        })
     
         return {
           ...product.toJSON(),
           price: parseFloat(product.price),
           name: name ? name.meta_title : null,
+          utopya_urls: utopya_urls,
+          mobilax_urls:mobilax_urls,
           wholesale_price: parseFloat(product.wholesale_price),
           image_url: images ? `https://mcs-parts.fr/api/images/products/${product.id_product}/${images.id_image}?ws_key=${config.mcs_image_key}` : null,
           quantity: stockAvailable ? stockAvailable.quantity : null,
@@ -101,11 +111,21 @@ async function getByPage(req, res) {
         const config = await mcsConfig.findOne({
           where: {id: 1}
         });
+
+        const utopya_urls = await utopya_links.findAll({
+          where: { id_product: product.id_product }
+        })
+
+        const mobilax_urls = await mobilax_links.findAll({
+          where: { id_product: product.id_product }
+        })
     
         return {
           ...product.toJSON(),
           price: parseFloat(product.price),
-          name: name.meta_title,
+          name: name ? name.meta_title : null,
+          utopya_urls: utopya_urls,
+          mobilax_urls:mobilax_urls,
           wholesale_price: parseFloat(product.wholesale_price),
           image_url: images ? `https://mcs-parts.fr/api/images/products/${product.id_product}/${images.id_image}?ws_key=${config.mcs_image_key}` : null,
           quantity: stockAvailable ? stockAvailable.quantity : null,
@@ -239,7 +259,7 @@ async function deleteLink(req, res) {
   }
 
   if(mobilax) {
-    const deleteLink = await mobilax.destroy({
+    const deleteLink = await mobilax_links.destroy({
       where: {id: id}
     }).then((result) => {
       return res.json(result)
