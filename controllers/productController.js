@@ -92,6 +92,10 @@ async function getByPage(req, res) {
       limit: limit,
     });
 
+    const totalProducts = await products.findOne({
+      attributes: [[Sequelize.fn('COUNT', Sequelize.col('*')), 'count']],
+    });
+
     const updatedProducts = await Promise.all(
       allProducts.map(async (product) => {
         const stockAvailable = await mcs_stock_available.findOne({
@@ -138,7 +142,7 @@ async function getByPage(req, res) {
       return res.status(500).json({error: "Aucun produit trouvés."});
     }
 
-    return res.status(200).json(updatedProducts);
+    return res.status(200).json({total_products: totalProducts.dataValues.count, products : updatedProducts});
 
   } catch (error) {
 
