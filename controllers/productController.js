@@ -7,6 +7,7 @@ const mobilax_links = db.mobilaxLinks;
 const mobilaxBrandUrls = db.mobilaxBrandUrls;
 const mcsImages = db.mcsImages;
 const mcsConfig = db.mcsConfig;
+const mcsProductLang = db.mcsProductLang;
 
 const { LoginUtopya } = require('../functions/LoginUtopya');
 const { LoginMobilax } = require('../functions/LoginMobilax');
@@ -31,12 +32,21 @@ async function getAll(req, res) {
         const images = await mcsImages.findOne({
           where: { id_product: product.id_product }
         })
+
+        const name = await mcsProductLang.findOne({
+          where: { id_product: product.id_product }
+        })
+
+        const config = await mcsConfig.findOne({
+          where: {id: 1}
+        });
     
         return {
           ...product.toJSON(),
           price: parseFloat(product.price),
+          name: name ? name.meta_title : null,
           wholesale_price: parseFloat(product.wholesale_price),
-          image_url: images ? `https://mcs-parts.fr/api/images/products/${product.id_product}/${images.id_image}?ws_key=YLAUHMGVHQRWWQ8M4HLHTUED27DAJ5G7` : null,
+          image_url: images ? `https://mcs-parts.fr/api/images/products/${product.id_product}/${images.id_image}?ws_key=${config.mcs_image_key}` : null,
           quantity: stockAvailable ? stockAvailable.quantity : null,
           margin_percentage: stockAvailable.quantity ? ((product.price - product.wholesale_price) / product.price) * 100 : null,
           margin_value: stockAvailable.quantity ? (product.price - product.wholesale_price) : null
@@ -84,11 +94,18 @@ async function getByPage(req, res) {
           where: { id_product: product.id_product }
         })
 
-        const config = await mcsConfig.findOne({id: 1});
+        const name = await mcsProductLang.findOne({
+          where: { id_product: product.id_product }
+        })
 
+        const config = await mcsConfig.findOne({
+          where: {id: 1}
+        });
+    
         return {
           ...product.toJSON(),
           price: parseFloat(product.price),
+          name: name.meta_title,
           wholesale_price: parseFloat(product.wholesale_price),
           image_url: images ? `https://mcs-parts.fr/api/images/products/${product.id_product}/${images.id_image}?ws_key=${config.mcs_image_key}` : null,
           quantity: stockAvailable ? stockAvailable.quantity : null,
@@ -179,7 +196,58 @@ async function getAverageMargin(req,res) {
   res.json(average);
 }
 
+async function addLinkToProduct(req, res) {
+ const { utopya_url, mobilax_url, id_product } = req.body;
+  if(!utopya_url && !mobilax_url || !id_product) {
+    return res.json({error: "veuillez fournir au minimum un lien fournisseur."});
+  }
 
+  let newUtopyaLink;
+
+  if(utopya_url) {
+    newUtopyaLink = await utopya_links.create({
+      id_product: id_product,
+      url : utopya_url
+    })
+  }
+
+  let newMobilaxLink;
+  if(mobilax_url) {
+    newMobilaxLink = await mobilax_links.create({
+      id_product: id_product,
+      url : mobilax_url
+    })
+  }
+
+  return res.json({mobilax: newMobilaxLink , utopya: newUtopyaLink})
+}
+
+async function deleteLink(req, res) {
+  const { utopya, mobilax, id } = req.body;
+
+  
+  if(!mobilax && !utopya) {
+    return res.json({error: "Aucun lien supprimé. Verifiez votre action."})
+  }
+
+  if(utopya) {
+    const deleteLink = await utopya_links.destroy({
+      where: {id: id}
+    }).then((result) => {
+      return res.json(result)
+    })
+  }
+
+  if(mobilax) {
+    const deleteLink = await mobilax.destroy({
+      where: {id: id}
+    }).then((result) => {
+      return res.json(result)
+    })
+    
+  }
+  
+}
 
 
 
@@ -196,7 +264,9 @@ const parsedValues = (array) => {
 
 module.exports = {
   getAll,
+  deleteLink,
   getAverageMargin,
   getByPage,
-  compareSupplier
+  compareSupplier,
+  addLinkToProduct
 };
