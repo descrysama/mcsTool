@@ -3,6 +3,10 @@ const { By, until } = webdriver;
 
 const fetchDataUtopya = async(driver, array) => {
     final_array = [];
+    
+    if(array.length == 0) {
+        return final_array
+    }
 
     for (const link of array) {
         let object = {

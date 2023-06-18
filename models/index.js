@@ -35,5 +35,6 @@ db.mobilaxBrandUrls = require("./mobilax_brand_urls.js")(sequelize, Sequelize);
 db.mobilaxLinks = require("./mobilax_links.js")(sequelize, Sequelize);
 db.utopyaLinks = require("./utopya_links.js")(sequelize, Sequelize);
 db.mcsImages = require("./mcs_image.js")(sequelize, Sequelize);
+db.mcsConfig = require("./config.js")(sequelize, Sequelize);
 
 module.exports = db;

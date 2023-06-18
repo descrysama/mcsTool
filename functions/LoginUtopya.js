@@ -1,13 +1,12 @@
 const { Builder, By, until } = require('selenium-webdriver');
 const { Options } = require('selenium-webdriver/firefox');
-const webdriver = require('selenium-webdriver');
 
 async function waitForElement(driver, selector, timeout) {
   await driver.wait(until.elementLocated(By.css(selector)), timeout);
   await driver.wait(until.elementIsVisible(driver.findElement(By.css(selector))), timeout);
 }
 
-async function LoginUtopya(headless) {
+async function LoginUtopya(headless, email, password) {
   try {
     const options = new Options();
     
@@ -30,10 +29,10 @@ async function LoginUtopya(headless) {
     await driver.executeScript("arguments[0].style.display = 'block';", hiddenDivs[1]);
 
     const emailInput = await driver.findElement(By.name('login[username]'));
-    await emailInput.sendKeys('louis.lantiez@outlook.com');
+    await emailInput.sendKeys(email);
 
     const passwordInput = await driver.findElement(By.name('login[password]'));
-    await passwordInput.sendKeys('Google59');
+    await passwordInput.sendKeys(password);
 
     const form = await driver.findElement(By.id('form-popup-login'));
     await form.findElement(By.id('send2')).click();

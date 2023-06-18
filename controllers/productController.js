@@ -1,4 +1,4 @@
-
+const { Sequelize, DataTypes } = require('sequelize');
 const db = require("../models");
 const products = db.products;
 const mcs_stock_available = db.stockAvailable;
@@ -6,6 +6,7 @@ const utopya_links = db.utopyaLinks;
 const mobilax_links = db.mobilaxLinks;
 const mobilaxBrandUrls = db.mobilaxBrandUrls;
 const mcsImages = db.mcsImages;
+const mcsConfig = db.mcsConfig;
 
 const { LoginUtopya } = require('../functions/LoginUtopya');
 const { LoginMobilax } = require('../functions/LoginMobilax');
@@ -56,7 +57,7 @@ async function getAll(req, res) {
   }
 }
 
-async function get(req, res) {
+async function getByPage(req, res) {
   if (!Number.isInteger(parseInt(req.params.page))) {
       return res.status(500).json({ error: "Page non valide." })
   }
@@ -82,12 +83,14 @@ async function get(req, res) {
         const images = await mcsImages.findOne({
           where: { id_product: product.id_product }
         })
-    
+
+        const config = await mcsConfig.findOne({id: 1});
+
         return {
           ...product.toJSON(),
           price: parseFloat(product.price),
           wholesale_price: parseFloat(product.wholesale_price),
-          image_url: images ? `https://mcs-parts.fr/api/images/products/${product.id_product}/${images.id_image}?ws_key=YLAUHMGVHQRWWQ8M4HLHTUED27DAJ5G7` : null,
+          image_url: images ? `https://mcs-parts.fr/api/images/products/${product.id_product}/${images.id_image}?ws_key=${config.mcs_image_key}` : null,
           quantity: stockAvailable ? stockAvailable.quantity : null,
           margin_percentage: stockAvailable.quantity ? ((product.price - product.wholesale_price) / product.price) * 100 : null,
           margin_value: stockAvailable.quantity ? (product.price - product.wholesale_price) : null
@@ -111,20 +114,22 @@ async function get(req, res) {
 async function compareSupplier(req, res) {
   //Login utopya avec webdriver
   // Login mobilax avec une simple methode POST
+  const config = await mcsConfig.findOne({id: 1});
   const [utopyaLogged, mobilaxLogged] = await Promise.all([
-    await LoginUtopya(true),
-    await LoginMobilax()
+    await LoginUtopya(true, config.utopya_email, config.utopya_password),
+    await LoginMobilax(config.mobilax_email, config.mobilax_password)
   ])
 
   // Recupération des produits stockés (prestashop)
-  const mcs_products = await products.findAll({ attributes: ['id_product', 'ean13', 'price', 'wholesale_price', 'reference'] });
+  // const mcs_products = await products.findAll({ attributes: ['id_product', 'ean13', 'price', 'wholesale_price', 'reference'] });
 
-  // Liens des différents suppliers à comparer
-  const mobilaxLinksData = await mobilax_links.findAll();
-  const utopyaLinksData = await utopya_links.findAll();
+  // Liens des différents suppliers à comparer + Produits mobilax recupérés par les api
+  const [mobilaxLinksData, utopyaLinksData, allMobilaxApis] = await Promise.all([
+    await mobilax_links.findAll(),
+    await utopya_links.findAll(),
+    await mobilaxBrandUrls.findAll()
+  ])
 
-  // Produits mobilax recupérés par les api.
-  const allMobilaxApis = await mobilaxBrandUrls.findAll();
 
   const [FetchdataofUtopya, fetchDataOfMobilax] = await Promise.all([
     fetchDataUtopya(utopyaLogged, parsedValues(utopyaLinksData)),
@@ -143,11 +148,36 @@ async function compareSupplier(req, res) {
       {
         where : {id_product: item.id_product}
       }
-    )
+    ).then(async() => {
+      await mcs_stock_available.update(
+        {
+          quantity: item.quantity
+        },
+        {
+          where : {id_product: item.id_product}
+        }
+      )
+    })
   }
   return res.json(final_array)
 }
- 
+
+
+async function getAverageMargin(req,res) {
+  const average = await products.findOne({
+    attributes: [
+      [Sequelize.literal('AVG(((price - wholesale_price) / price) * 100)'), 'average_margin']
+    ],
+    where: {
+      wholesale_price: {
+        [Sequelize.Op.not]: 0
+      }
+    }
+  }
+  )
+  
+  res.json(average);
+}
 
 
 
@@ -166,6 +196,7 @@ const parsedValues = (array) => {
 
 module.exports = {
   getAll,
-  get,
+  getAverageMargin,
+  getByPage,
   compareSupplier
 };

@@ -1,7 +1,13 @@
 
 const fetchDataMobilax = async(token, array, mobilax_apis) => {
-    const fetchEntireStoreData = await fetchEntireStore(token, mobilax_apis);
+
     const final_array = [];
+    
+    if(array.length == 0) {
+        return final_array
+    }
+
+    const fetchEntireStoreData = await fetchEntireStore(token, mobilax_apis);
     for(const link of array) {
         let object = {
             id_product: link.id_product,

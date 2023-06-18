@@ -1,4 +1,5 @@
 var DataTypes = require("sequelize").DataTypes;
+var _config = require("./config");
 var _mcs_image = require("./mcs_image");
 var _mcs_product = require("./mcs_product");
 var _mcs_stock_available = require("./mcs_stock_available");
@@ -8,6 +9,7 @@ var _utopya_brand_urls = require("./utopya_brand_urls");
 var _utopya_links = require("./utopya_links");
 
 function initModels(sequelize) {
+  var config = _config(sequelize, DataTypes);
   var mcs_image = _mcs_image(sequelize, DataTypes);
   var mcs_product = _mcs_product(sequelize, DataTypes);
   var mcs_stock_available = _mcs_stock_available(sequelize, DataTypes);
@@ -18,6 +20,7 @@ function initModels(sequelize) {
 
 
   return {
+    config,
     mcs_image,
     mcs_product,
     mcs_stock_available,

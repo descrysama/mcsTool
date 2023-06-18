@@ -1,13 +1,11 @@
 const axios = require('axios');
 
-async function LoginMobilax() {
+async function LoginMobilax(email, password) {
   const loginUrl = 'https://www.mobilax.fr/api?model=Auth&action=connect&controller=Auth';
   const loginPayload = {
-    email: 'louis.lantiez4@icloud.com',
-    password: 'Google59'
+    email: email,
+    password: password
   };
-
-  console.log("going into login process...");
 
   try {
     const loginResponse = await axios.post(loginUrl, loginPayload);
