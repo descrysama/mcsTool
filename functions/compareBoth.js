@@ -6,7 +6,7 @@ const compareBoth = (mobiArray, utopyaArray) => {
     const isProcessed = (id) => {
         return processedIds.includes(id);
     };
-    
+    console.log(mobiArray[0])
     // Parcourir le mobiArray et pousser les objets dans le tableau résultant
     mobiArray.forEach(item => {
         const idProduct = item.id_product;
@@ -27,7 +27,7 @@ const compareBoth = (mobiArray, utopyaArray) => {
         
     });
     
-
+    console.log(utopyaArray[0])
     utopyaArray.forEach(item => {
         const idProduct = item.id_product;
         if (!isProcessed(idProduct)) {
