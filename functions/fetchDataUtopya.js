@@ -1,66 +1,92 @@
-const webdriver = require('selenium-webdriver');
-const { By, until } = webdriver;
+const request = require("request");
+const cheerio = require("cheerio");
 
-const fetchDataUtopya = async(driver, array) => {
-    final_array = [];
-    
-    if(array.length == 0) {
-        return final_array
-    }
+async function fetchDataUtopya(email, password, urlsArray) {
+  const loginUrl = "https://www.utopya.fr/mikiito/ajax/loginPost/ajax/1";
+  const accountUrl = "https://www.utopya.fr/customer/account/";
 
-    for (const link of array) {
-        let object = {
-            id_product: link.id_product,
-            reference: "",
-            quantity: 0,
-            wholesale_price: 0,
-            ean13: ""
+  let session = request.defaults({ jar: true });
+  let final_array = [];
+  session.get(accountUrl, (error, response, body) => {
+    const $ = cheerio.load(body);
+    const formKey = $('input[name="form_key"]').val();
 
-        };
-        await driver.get(link.url);
-        try {
-            
+    const payload = {
+      form_key: formKey,
+      "login[username]": email,
+      "login[password]": password,
+      ajax: "true",
+    };
 
-            const skuLi = await driver.wait(until.elementLocated(By.css('li.attr-sku')), 2000);
-            const skuElement = await skuLi.findElement(By.tagName('strong'));
-            const sku = await skuElement.getText();
-            object = {...object, reference: sku.trim()};
+    session.post(loginUrl, { form: payload }, (error, response, body) => {
+      const responseJson = JSON.parse(body);
 
-            const eanLi = await driver.wait(until.elementLocated(By.css('li.attr-ean')), 2000);
-            const eanElement = await eanLi.findElement(By.tagName('strong'));
-            const ean = await eanElement.getText();
-            object = {...object, ean13: ean.trim()};
+      if (responseJson.state === "ERROR") {
+        console.log("Échec de la connexion :", responseJson.message);
+      } else {
+        console.log("Connecté avec succès !");
 
-            const priceElement = await driver.wait(until.elementLocated(By.css('.price-box .price')), 2000);
-            const priceText = await priceElement.getText();
-            const wholesale_price = parseFloat(priceText.replace('€', '.'));
-            object = { ...object, wholesale_price };
+        urlsArray.forEach(async (link) => {
+          const result = await get_data(link, session);
+          final_array.push(result);
+        });
+        session = null
+      }
+    });
+  });
 
-            try {
-                const addToCartButton = await driver.wait(until.elementLocated(By.css('button.action.primary.tocart[title="Ajouter au panier"]')),2000);
-                object = { ...object, quantity: 99 };
-            } catch(error) {
-                object = { ...object, quantity: 0 };
-            }
+  return final_array;
+}
 
-        } catch {
-            console.log('error')
-        }
+async function get_data(link, session) {
+  let object = {
+    id_product: link.id_product,
+    reference: "",
+    quantity: 0,
+    wholesale_price: 0,
+    ean13: "",
+  };
 
-        let findIndex = final_array.findIndex((item) => item.id_product == object.id_product);
-        if(findIndex > -1) {
-            if(object.wholesale_price < final_array[findIndex].wholesale_price) {
-                final_array.splice(findIndex, 1, object)
-            }
-
+  try {
+    const body = await new Promise((resolve, reject) => {
+      session.get(link.url, (error, response, body) => {
+        if (error) {
+          reject(error);
         } else {
-            final_array.push(object);
+          resolve(body);
         }
-        
+      });
+    });
+
+    const $ = cheerio.load(body);
+
+    const eanData = $('strong[data-th="EAN"]').text().trim();
+    object = { ...object, ean13: eanData };
+
+    const formDiv = $('div.product-atc');
+    const productSku = formDiv.find('form').attr("data-product-sku");
+    object = { ...object, reference: productSku };
+
+    const priceAmount = $('meta[property="product:price:amount"]').attr("content").trim();
+    object = { ...object, wholesale_price: parseFloat(priceAmount)};
+
+    const stockTag = $("p.stock.color-green");
+    let stockFinal;
+    if (stockTag.length > 0) {
+      stockFinal = 99;
+    } else {
+      stockFinal = 0;
     }
-    return final_array;
+
+    object = { ...object, quantity: stockFinal };
+  } catch (error) {
+    console.error("Error occurred during session.get:", error);
+    // Handle the error as needed
+  }
+
+  return object;
 }
 
 module.exports = {
-    fetchDataUtopya
-}
+  fetchDataUtopya,
+};

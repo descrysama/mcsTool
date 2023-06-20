@@ -9,9 +9,7 @@ const mcsImages = db.mcsImages;
 const mcsConfig = db.mcsConfig;
 const mcsProductLang = db.mcsProductLang;
 
-const { LoginUtopya } = require("../functions/LoginUtopya");
 const { LoginMobilax } = require("../functions/LoginMobilax");
-
 const { fetchDataUtopya } = require("../functions/fetchDataUtopya");
 const { fetchDataMobilax } = require("../functions/fetchDataMobilax");
 const { compareBoth } = require("../functions/compareBoth");
@@ -280,15 +278,12 @@ async function search(req, res) {
 }
 
 async function compareSupplier(req, res) {
-  //Login utopya avec webdriver
   // Login mobilax avec une simple methode POST
   const config = await mcsConfig.findOne({
     where: { id: 1 }
   });
-  const [utopyaLogged, mobilaxLogged] = await Promise.all([
-    await LoginUtopya(true, config.utopya_email, config.utopya_password),
-    await LoginMobilax(config.mobilax_email, config.mobilax_password),
-  ]);
+
+  const mobilaxLogged =  await LoginMobilax(config.mobilax_email, config.mobilax_password)
 
   // Recupération des produits stockés (prestashop)
   // const mcs_products = await products.findAll({ attributes: ['id_product', 'ean13', 'price', 'wholesale_price', 'reference'] });
@@ -303,7 +298,7 @@ async function compareSupplier(req, res) {
   );
 
   const [FetchdataofUtopya, fetchDataOfMobilax] = await Promise.all([
-    fetchDataUtopya(utopyaLogged, parsedValues(utopyaLinksData)),
+    fetchDataUtopya(config.utopya_email, config.utopya_password, parsedValues(utopyaLinksData)),
     fetchDataMobilax(
       mobilaxLogged,
       parsedValues(mobilaxLinksData),
