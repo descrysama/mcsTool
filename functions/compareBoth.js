@@ -1,7 +1,8 @@
 const compareBoth = (mobiArray, utopyaArray) => {
     const mergedArray = [];
     const processedIds = [];
-    
+    console.log(mobiArray)
+    console.log(utopyaArray)
     // Fonction pour vérifier si un id_product a déjà été traité
     const isProcessed = (id) => {
         return processedIds.includes(id);
