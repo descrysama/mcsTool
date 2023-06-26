@@ -20,7 +20,7 @@ const fetchDataMobilax = async(token, array, mobilax_apis) => {
 
         try {
             let index = fetchEntireStoreData.findIndex((item) => item.url.trim().toLowerCase() == link.url.trim().toLowerCase());
-            if(index) {
+            if(index != -1) {
                 final_array.push({...object, 
                     reference: fetchEntireStoreData[index].ean13 ? fetchEntireStoreData[index].ean13.toString() : null,
                     quantity: fetchEntireStoreData[index].quantity,
