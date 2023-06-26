@@ -363,18 +363,33 @@ async function addLinkToProduct(req, res) {
   let newUtopyaLink;
 
   if (utopya_url) {
-    newUtopyaLink = await utopya_links.create({
-      id_product: id_product,
-      url: utopya_url,
-    });
+    try {
+      newUtopyaLink = await utopya_links.create({
+        id_product: id_product,
+        url: utopya_url,
+      });
+    } catch(e) {
+      console.log(e)
+    }
   }
 
   let newMobilaxLink;
+  let parseUrl;
+  try {
+    parseUrl = new URL(mobilax_url)
+  } catch(e) {
+    console.log(e)
+  }
+
   if (mobilax_url) {
-    newMobilaxLink = await mobilax_links.create({
-      id_product: id_product,
-      url: mobilax_url,
-    });
+    try {
+      newMobilaxLink = await mobilax_links.create({
+        id_product: id_product,
+        url: parseUrl.pathname.slice(1, parseUrl.pathname.length),
+      });
+    } catch(e) {
+      console.log(e)
+    }
   }
 
   return res.json({ mobilax: newMobilaxLink, utopya: newUtopyaLink });
