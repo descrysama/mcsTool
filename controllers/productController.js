@@ -120,7 +120,7 @@ async function getByPage(req, res) {
         });
 
         const name = await mcsProductLang.findOne({
-          where: { id_product: product.id_product },
+          where: { id_product: product.id_product, id_lang: 1 },
         });
 
         const config = await mcsConfig.findOne({
@@ -138,7 +138,7 @@ async function getByPage(req, res) {
         return {
           ...product.toJSON(),
           price: parseFloat(product.price),
-          name: name ? name.meta_title : null,
+          name: name ? (name.meta_title ? name.meta_title : name.name) : null,
           utopya_urls: utopya_urls,
           mobilax_urls: mobilax_urls,
           wholesale_price: parseFloat(product.wholesale_price),
