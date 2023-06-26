@@ -34,7 +34,6 @@ async function fetchDataUtopya(email, password, urlsArray) {
       }
     });
   });
-
   return final_array;
 }
 
@@ -83,7 +82,6 @@ async function get_data(link, session) {
     console.error("Error occurred during session.get:", error);
     // Handle the error as needed
   }
-
   return object;
 }
 

@@ -40,13 +40,17 @@ const fetchEntireStore = async(token, mobilax_apis) => {
     let mobilaxentireproducts = [];
 
     for(const api of mobilax_apis) {
-        const response = await fetch(api.url, {
-            headers: {
-              Cookie: `token=${token}`,
-            },
-          });
-        const responseJsoned = await response.json();
-        mobilaxentireproducts.push(...responseJsoned.products)
+        try {
+            const response = await fetch(api.url, {
+                headers: {
+                  Cookie: `token=${token}`,
+                },
+              });
+            const responseJsoned = await response.json();
+            mobilaxentireproducts.push(...responseJsoned.products)
+        } catch(e) {
+            console.log("Erreur fetch mobilax :" + e)
+        }
     }
 
     return mobilaxentireproducts
