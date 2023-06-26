@@ -39,7 +39,7 @@ const fetchDataMobilax = async(token, array, mobilax_apis) => {
 const fetchEntireStore = async(token, mobilax_apis) => {
     let mobilaxentireproducts = [];
 
-    for(const api of mobilax_apis) {
+    mobilax_apis.forEach(async(api, index) => {
         try {
             const response = await fetch(api.url, {
                 headers: {
@@ -51,7 +51,7 @@ const fetchEntireStore = async(token, mobilax_apis) => {
         } catch(e) {
             console.log("Erreur fetch mobilax :" + e)
         }
-    }
+    })
 
     return mobilaxentireproducts
 }
