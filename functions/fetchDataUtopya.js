@@ -5,8 +5,10 @@ async function fetchDataUtopya(email, password, urlsArray) {
   const loginUrl = "https://www.utopya.fr/mikiito/ajax/loginPost/ajax/1";
   const accountUrl = "https://www.utopya.fr/customer/account/";
 
-  let session = request.defaults({ jar: true });
+  let jar = request.jar();
+  let session = request.defaults({ jar: jar });
   let final_array = [];
+
   session.get(accountUrl, (error, response, body) => {
     const $ = cheerio.load(body);
     const formKey = $('input[name="form_key"]').val();
@@ -18,7 +20,7 @@ async function fetchDataUtopya(email, password, urlsArray) {
       ajax: "true",
     };
 
-    session.post(loginUrl, { form: payload }, (error, response, body) => {
+    session.post(loginUrl, { form: payload }, async(error, response, body) => {
       const responseJson = JSON.parse(body);
 
       if (responseJson.state === "ERROR") {
@@ -26,11 +28,19 @@ async function fetchDataUtopya(email, password, urlsArray) {
       } else {
         console.log("Connecté avec succès !");
 
-        urlsArray.forEach(async (link) => {
-          const result = await get_data(link, session);
-          final_array.push(result);
-        });
-        session = null
+        await new Promise((resolve, reject) => {
+          urlsArray.forEach(async(link, index) => {
+            const result = await get_data(link, session);
+            final_array.push(result);
+            if(index >= urlsArray.length) {
+              resolve()
+            }
+          });
+          
+        })
+        // Reset the session cookie jar after done
+        jar = request.jar();
+        session = request.defaults({ jar: jar });
       }
     });
   });
@@ -63,11 +73,17 @@ async function get_data(link, session) {
     object = { ...object, ean13: eanData };
 
     const formDiv = $('div.product-atc');
-    const productSku = formDiv.find('form').attr("data-product-sku");
-    object = { ...object, reference: productSku };
-
-    const priceAmount = $('meta[property="product:price:amount"]').attr("content").trim();
-    object = { ...object, wholesale_price: parseFloat(priceAmount)};
+    let productSku = formDiv.find('form').attr("data-product-sku");
+    if (!productSku) {
+      productSku = $('li.attr-sku').find('strong.data').text().trim();
+    }
+    if (productSku) {
+      object = { ...object, reference: productSku };
+    }
+    
+    let priceAmountElement = $('meta[itemprop="price"]').attr("content");
+    const priceAmount = priceAmountElement ? priceAmountElement.trim() : "0";
+    object = { ...object, wholesale_price: parseFloat(priceAmount)};    
 
     const stockTag = $("p.stock.color-green");
     let stockFinal;
@@ -76,13 +92,14 @@ async function get_data(link, session) {
     } else {
       stockFinal = 0;
     }
-
     object = { ...object, quantity: stockFinal };
+
+    return object;
   } catch (error) {
     console.error("Error occurred during session.get:", error);
     // Handle the error as needed
   }
-  return object;
+
 }
 
 module.exports = {
