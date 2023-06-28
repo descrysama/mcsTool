@@ -80,8 +80,12 @@ module.exports.login = async(req, res) => {
 
 
 module.exports.register = async(req , res) => {
-    const { email } = req.body
+    const { email, special_key } = req.body;
     const password = hashPassword(req.body.password);
+
+    if(special_key !== process.env.SPECIAL_KEY) {
+        return res.json({error: "Special key non correct."})
+    }
 
     if(!email || !password) {
         return res.json({
