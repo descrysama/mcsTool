@@ -376,7 +376,9 @@ async function addLinkToProduct(req, res) {
   let newMobilaxLink;
   let parseUrl;
   try {
-    parseUrl = new URL(mobilax_url)
+    if(mobilax_url) {
+      parseUrl = new URL(mobilax_url.trim())
+    }
   } catch(e) {
     console.log(e)
   }
