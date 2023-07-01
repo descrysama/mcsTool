@@ -18,7 +18,7 @@ app.use(express.json());
 const db = require("./models");
 db.sequelize.sync()
   .then(() => {
-    console.log("Db bridge connected 😊 ✅");
+    console.log("Db bridge connected 卍 😈  卍 🛠️  ✅");
   })
   .catch((err) => {
     console.log("Failed to connect to db : " + err.message);

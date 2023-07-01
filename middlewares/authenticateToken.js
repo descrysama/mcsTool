@@ -9,11 +9,11 @@ module.exports.authToken = (req, res, next) => {
             next()
         } else {
             res.json({
-                message: 'Invalid token'
+                error: 'Accès refusé. Connectez vous.'
             })
         }
     } else {
-        res.status(500).json({})
+        res.status(500).json({error: 'Accès refusé. Connectez vous.'})
     }
 }
 

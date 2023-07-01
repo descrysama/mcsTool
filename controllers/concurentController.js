@@ -315,7 +315,7 @@ async function deleteLink(req, res) {
         return res.status(500).json({ error: "Veuillez specifier un id." })
     }
 
-    const checkIfExist = await concurentLinks.findOne({ id: link_id });
+    const checkIfExist = await concurentLinks.findByPk(link_id);
 
     if (!checkIfExist) {
         return res.status(500).json({ error: "Le lien n'existe pas." })
