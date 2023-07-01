@@ -29,10 +29,12 @@ db.sequelize.sync()
 const productRoutes = require('./routes/productRoutes');
 const configRoutes = require('./routes/configRoutes');
 const userRoutes = require('./routes/userRoutes');
+const concurentRoutes = require('./routes/concurentRoutes');
 
 app.use('/products', productRoutes);
 app.use('/config', configRoutes);
 app.use('/user', userRoutes);
+app.use('/concurent', concurentRoutes);
 
 
 app.listen(port, () => console.log('Serveur ouvert sur le port : ' + port))

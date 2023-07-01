@@ -9,9 +9,9 @@ const mcsImages = db.mcsImages;
 const mcsConfig = db.mcsConfig;
 const mcsProductLang = db.mcsProductLang;
 
-const { LoginMobilax } = require("../functions/LoginMobilax");
-const { fetchDataUtopya } = require("../functions/fetchDataUtopya");
-const { fetchDataMobilax } = require("../functions/fetchDataMobilax");
+const { LoginMobilax } = require("../functions/suppliers/LoginMobilax");
+const { fetchDataUtopya } = require("../functions/suppliers/fetchDataUtopya");
+const { fetchDataMobilax } = require("../functions/suppliers/fetchDataMobilax");
 const { compareBoth } = require("../functions/compareBoth");
 
 async function getAll(req, res) {
@@ -55,7 +55,7 @@ async function getAll(req, res) {
         return {
           ...product.toJSON(),
           price: parseFloat(product.price),
-          name: name ? name.meta_title : null,
+          name: name ? name.name : null,
           utopya_urls: utopya_urls,
           mobilax_urls: mobilax_urls,
           wholesale_price: parseFloat(product.wholesale_price),
@@ -185,7 +185,7 @@ async function search(req, res) {
     const totalProducts = await mcsProductLang.findOne({
       attributes: [[Sequelize.fn("COUNT", Sequelize.col("*")), "count"]],
       where: {
-        meta_title: {
+        name: {
           [Op.like]: `%${query}%`,
         },
         id_lang: 1
@@ -193,9 +193,9 @@ async function search(req, res) {
     });
 
     const findInLangTable = await mcsProductLang.findAll({
-      attributes: ["meta_title", "id_product"],
+      attributes: ["name", "id_product"],
       where: {
-        meta_title: {
+        name: {
           [Op.like]: `%${query}%`,
         },
         id_lang: 1
@@ -243,7 +243,7 @@ async function search(req, res) {
           reference: originalProduct.reference,
           ean13: originalProduct.ean13,
           id_product: lang.id_product,
-          name : lang.meta_title,
+          name: lang.name,
           price: parseFloat(originalProduct.price),
           // name: name ? name.meta_title : null,
           utopya_urls: utopya_urls,
@@ -283,7 +283,7 @@ async function compareSupplier(req, res) {
     where: { id: 1 }
   });
 
-  const mobilaxLogged =  await LoginMobilax(config.mobilax_email, config.mobilax_password)
+  const mobilaxLogged = await LoginMobilax(config.mobilax_email, config.mobilax_password)
 
   // Recupération des produits stockés (prestashop)
   // const mcs_products = await products.findAll({ attributes: ['id_product', 'ean13', 'price', 'wholesale_price', 'reference'] });
@@ -368,7 +368,7 @@ async function addLinkToProduct(req, res) {
         id_product: id_product,
         url: utopya_url,
       });
-    } catch(e) {
+    } catch (e) {
       console.log(e)
     }
   }
@@ -376,10 +376,10 @@ async function addLinkToProduct(req, res) {
   let newMobilaxLink;
   let parseUrl;
   try {
-    if(mobilax_url) {
+    if (mobilax_url) {
       parseUrl = new URL(mobilax_url.trim())
     }
-  } catch(e) {
+  } catch (e) {
     console.log(e)
   }
 
@@ -389,7 +389,7 @@ async function addLinkToProduct(req, res) {
         id_product: id_product,
         url: parseUrl.pathname.slice(1, parseUrl.pathname.length),
       });
-    } catch(e) {
+    } catch (e) {
       console.log(e)
     }
   }
@@ -415,7 +415,7 @@ async function deleteLink(req, res) {
   }
 
   if (mobilax) {
-    const deleteLink = await mobilax_links
+    await mobilax_links
       .destroy({
         where: { id: id },
       })

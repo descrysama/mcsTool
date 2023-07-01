@@ -1,4 +1,5 @@
 var DataTypes = require("sequelize").DataTypes;
+var _concurent_links = require("./concurent_links");
 var _config = require("./config");
 var _mcs_image = require("./mcs_image");
 var _mcs_product = require("./mcs_product");
@@ -10,6 +11,7 @@ var _mobilax_links = require("./mobilax_links");
 var _utopya_links = require("./utopya_links");
 
 function initModels(sequelize) {
+  var concurent_links = _concurent_links(sequelize, DataTypes);
   var config = _config(sequelize, DataTypes);
   var mcs_image = _mcs_image(sequelize, DataTypes);
   var mcs_product = _mcs_product(sequelize, DataTypes);
@@ -22,6 +24,7 @@ function initModels(sequelize) {
 
 
   return {
+    concurent_links,
     config,
     mcs_image,
     mcs_product,
