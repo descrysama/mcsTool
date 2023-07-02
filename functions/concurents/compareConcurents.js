@@ -27,7 +27,7 @@ async function getCheapestFromProduct(product) {
             })
         )
 
-
+        console.log(lowestPrice)
         return { ...product, price: (parseInt(lowestPrice) + 0.99) };
     } else {
         return null
