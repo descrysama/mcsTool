@@ -6,6 +6,7 @@ const getCheapestFromProduct = require("../functions/concurents/compareConcurent
 const concurentLinks = db.concurentLinks;
 const mcs_stock_available = db.stockAvailable;
 const products = db.products;
+const products_shop = db.products_shop;
 const mcsImages = db.mcsImages;
 const mcsConfig = db.mcsConfig;
 const mcsProductLang = db.mcsProductLang;
@@ -452,7 +453,7 @@ async function compareConcurents(req, res) {
         allProducts.map(async(product, index) => {
             let result = await getCheapestFromProduct(product);
             if (result) {
-                products.update(
+                products_shop.update(
                     {
                         price: result.price
                     },
