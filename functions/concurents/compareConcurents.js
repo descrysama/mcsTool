@@ -19,10 +19,12 @@ async function getCheapestFromProduct(product) {
                         if (price >= (supplier_price * 1.16)) {
                             lowestPrice = price;
                         }
+                    } else {
+                        if(product.price < (supplier_price * 1.16)) {
+                            lowestPrice = (supplier_price * 1.16)
+                        }
                     }
-                    if(product.price < (supplier_price * 1.16)) {
-                        lowestPrice = (supplier_price * 1.16)
-                    }
+                    
                 } return null
             })
         )
