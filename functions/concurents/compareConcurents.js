@@ -28,7 +28,7 @@ async function getCheapestFromProduct(product) {
         )
 
 
-        return { ...product, price: parseInt(lowestPrice) + 0.99 };
+        return { ...product, price: (parseInt(lowestPrice) + 0.99) };
     } else {
         return null
     }
