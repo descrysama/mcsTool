@@ -14,7 +14,7 @@ const { fetchDataUtopya } = require("../functions/suppliers/fetchDataUtopya");
 const { fetchDataMobilax } = require("../functions/suppliers/fetchDataMobilax");
 const { compareBoth } = require("../functions/compareBoth");
 
-async function getAll(req, res) {
+async function getAllProducts(req, res) {
   try {
     const allProducts = await products.findAll({
       attributes: [
@@ -434,7 +434,7 @@ const parsedValues = (array) => {
 };
 
 module.exports = {
-  getAll,
+  getAllProducts,
   search,
   deleteLink,
   getAverageMargin,

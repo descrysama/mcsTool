@@ -1,6 +1,8 @@
 const { Sequelize, DataTypes, Op } = require("sequelize");
+const getAllProducts = require('../functions/concurents/getAllProducts');
 
 const db = require("../models");
+const getCheapestFromProduct = require("../functions/concurents/compareConcurents");
 const concurentLinks = db.concurentLinks;
 const mcs_stock_available = db.stockAvailable;
 const products = db.products;
@@ -62,6 +64,70 @@ async function getAll(req, res) {
         }
 
         return res.status(200).json(updatedProducts);
+
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ error: "Server error" });
+    }
+}
+
+async function getSingle(req, res) {
+
+    if (!req.params.id) {
+        return res.status(500).json({ error: "Veuillez specifier un id" })
+    }
+
+    try {
+        const product = await products.findOne({
+            where: {
+                id_product: req.params.id
+            },
+            attributes: [
+                "id_product",
+                "ean13",
+                "price",
+                "wholesale_price",
+                "reference",
+            ],
+        });
+
+        if (!product) {
+            return res.status(500).json({ error: "Produit non trouvé." })
+        }
+        const stockAvailable = await mcs_stock_available.findOne({
+            where: { id_product: product.id_product },
+            attributes: ["quantity"],
+        });
+
+        const concurentLinksArray = await concurentLinks.findAll({
+            where: { id_product: product.id_product },
+        });
+
+        const images = await mcsImages.findOne({
+            where: { id_product: product.id_product },
+        });
+
+        const name = await mcsProductLang.findOne({
+            where: { id_product: product.id_product, id_lang: 1 },
+        });
+
+        const config = await mcsConfig.findOne({
+            where: { id: 1 },
+        });
+
+
+        return res.status(200).json({
+            ...product.toJSON(),
+            price: parseFloat(product.price),
+            name: name ? name.meta_title : null,
+            concurent_urls: concurentLinksArray,
+            wholesale_price: parseFloat(product.wholesale_price),
+            image_url: images
+                ? `https://mcs-parts.fr/api/images/products/${product.id_product}/${images.id_image}?ws_key=${config.mcs_image_key}`
+                : null,
+            quantity: stockAvailable ? stockAvailable.quantity : null,
+        });
+
 
     } catch (error) {
         console.error(error);
@@ -326,13 +392,81 @@ async function deleteLink(req, res) {
             where: { id: link_id },
         })
         .then(() => {
-            return res.json({message: "Lien supprimé avec succès."});
+            return res.json({ message: "Lien supprimé avec succès." });
         });
 
 }
 
-async function compareConcurents(req, res) {
+async function updateSingleProduct(req, res) {
+    const { concurent_urls } = req.body;
 
+    if (!concurent_urls) {
+        return res.status(500).json({ error: "Veuillez ajouter des liens." })
+    }
+
+    try {
+        concurent_urls.map(async (link, index) => {
+            let checkIfExists = await concurentLinks.findByPk(link.id);
+            if (checkIfExists) {
+                await concurentLinks.update(
+                    {
+                        url: link.url
+                    },
+                    {
+                        where: {
+                            id: link.id
+                        }
+                    }
+                );
+            } else {
+                let checkIfExists = await concurentLinks.findOne({
+                    where: {
+                        url: link.url
+                    }
+                })
+
+                if (!checkIfExists) {
+                    await concurentLinks.create({ url: link.url, id_product: link.id_product });
+                }
+            }
+        })
+
+        return res.status(200).json({ message: "Liens mis a jour." })
+    } catch (error) {
+        console.error(error);
+        return res.status(500).json({ error: "Une erreur s'est produite lors de l'enregistrement." });
+    }
+
+}
+
+// async function compareConcurents(req, res) {
+//     const allProducts = await getAllProducts.getAll();
+//     let finalArray = await allProducts.map((product, index) => getCheapestFromProduct(product));
+//     return res.json(finalArray)
+// }
+
+async function compareConcurents(req, res) {
+    const allProducts = await getAllProducts.getAll();
+    const final_array = [];
+    await Promise.all(
+        allProducts.map(async(product, index) => {
+            let result = await getCheapestFromProduct(product);
+            if (result) {
+                products.update(
+                    {
+                        price: result.price
+                    },
+                    {
+                        where: {
+                            id_product: result.id_product
+                        }
+                    }
+                )
+                final_array.push(result);
+            }
+        })
+    );
+    return res.json(final_array)
 }
 
 
@@ -343,5 +477,7 @@ module.exports = {
     search,
     addConcurentLink,
     deleteLink,
-    compareConcurents
+    compareConcurents,
+    getSingle,
+    updateSingleProduct
 }

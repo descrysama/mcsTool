@@ -5,6 +5,8 @@ const Middle = require('../middlewares/authenticateToken')
 
 
 router.get('/', Middle.authToken, concurentController.getAll);
+router.patch('/updatelinks', Middle.authToken, concurentController.updateSingleProduct);
+router.get('/getsingle/:id', Middle.authToken, concurentController.getSingle)
 router.get('/get/:page', Middle.authToken, concurentController.getByPage);
 router.post('/get/:page', Middle.authToken, concurentController.search);
 router.post('/create', Middle.authToken, concurentController.addConcurentLink);
