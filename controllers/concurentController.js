@@ -452,8 +452,9 @@ async function compareConcurents(req, res) {
     await Promise.all(
         allProducts.map(async(product, index) => {
             let result = await getCheapestFromProduct(product);
-            console.log(result.price)
+
             if (result) {
+                console.log(result.price)
                 products_shop.update(
                     {
                         price: result.price
