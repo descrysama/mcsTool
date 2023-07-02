@@ -26,7 +26,10 @@ async function getCheapestFromProduct(product) {
                 } return null
             })
         )
-        return { ...product, price: (parseInt(lowestPrice) + 0.99) };
+
+        let endPrice = (parseInt(lowestPrice * 1.2) + 0.99)
+
+        return { ...product, price: (endPrice / 1.2) };
     } else {
         return null
     }
