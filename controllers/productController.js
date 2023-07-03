@@ -1,6 +1,7 @@
 const { Sequelize, DataTypes, Op } = require("sequelize");
 const db = require("../models");
 const products = db.products;
+const products_shop = db.products_shop;
 const mcs_stock_available = db.stockAvailable;
 const utopya_links = db.utopyaLinks;
 const mobilax_links = db.mobilaxLinks;
@@ -321,6 +322,17 @@ async function compareSupplier(req, res) {
         }
       )
       .then(async () => {
+        await products_shop
+        .update(
+          {
+            reference: item.reference,
+            wholesale_price: item.wholesale_price,
+            ean13: item.ean13,
+          },
+          {
+            where: { id_product: item.id_product },
+          }
+        )
         await mcs_stock_available.update(
           {
             quantity: item.quantity,
