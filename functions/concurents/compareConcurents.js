@@ -1,9 +1,11 @@
 const bricoPhone = require('./website_scripts/bricoPhone');
+const phoneExpert78 = require('./website_scripts/phoneExpert78');
 const ToutPourPhone = require('./website_scripts/toutPourPhone');
 
 const classInstances = {
     "www.tout-pour-phone.com": ToutPourPhone,
-    "www.brico-phone.com": bricoPhone
+    "www.brico-phone.com": bricoPhone,
+    "www.phonexpert78.com": phoneExpert78
 };
 
 async function getCheapestFromProduct(product) {
@@ -26,7 +28,7 @@ async function getCheapestFromProduct(product) {
 
                     if (price < lowestPrice) {
                         if (price - 1 >= (supplier_price * 1.16)) {
-                            lowestPrice = price;
+                            lowestPrice = price - 1;
                         }
                     }
 
@@ -36,14 +38,21 @@ async function getCheapestFromProduct(product) {
                         }
                     }
                     
-                } return null
+                }
             })
         )
 
         let endPrice = (parseInt(lowestPrice * 1.2) + 0.99)
         return { ...product, price: (endPrice / 1.2) };
     } else {
-        return null
+        let supplier_price = product.wholesale_price         
+        if(product.price < (supplier_price * 1.16)) {
+            let lowestPrice = supplier_price * 1.16
+            let endPrice = (parseInt(lowestPrice * 1.2) + 0.99)
+
+            return { ...product, price: (endPrice / 1.2) };
+        } return null
+        
     }
 }
 

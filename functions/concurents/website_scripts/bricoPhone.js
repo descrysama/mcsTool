@@ -13,7 +13,6 @@ class bricoPhone {
         const $ = cheerio.load(htmlContent);
         const priceElement = $('span.price_total');
         const price = priceElement.text().replace('€', '').replace(',', '.').trim();
-        console.log(parseFloat(price/1.2))
         resolve(parseFloat(price/1.2));
       });
     });
