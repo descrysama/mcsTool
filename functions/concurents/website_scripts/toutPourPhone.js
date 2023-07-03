@@ -20,7 +20,7 @@ class ToutPourPhone {
                 const $ = cheerio.load(htmlContent);
                 const priceElement = $('span#our_price_display');
                 const price = priceElement.text().replace('€', '').replace(',', '.').trim();
-                resolve(parseFloat(price*0.8));
+                resolve(parseFloat(price/1.2));
             });
         });
     }

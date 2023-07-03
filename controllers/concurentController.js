@@ -450,11 +450,10 @@ async function compareConcurents(req, res) {
     const allProducts = await getAllProducts.getAll();
     const final_array = [];
     await Promise.all(
-        allProducts.map(async(product, index) => {
+        allProducts.map(async (product, index) => {
             let result = await getCheapestFromProduct(product);
 
             if (result) {
-                console.log(result.price)
                 products_shop.update(
                     {
                         price: result.price
@@ -464,7 +463,19 @@ async function compareConcurents(req, res) {
                             id_product: result.id_product
                         }
                     }
-                )
+                ).then(async() => {
+                    await products.update(
+                        {
+                            price: result.price
+                        },
+                        {
+                            where: {
+                                id_product: result.id_product
+                            }
+                        }
+                    )
+                })
+
                 final_array.push(result);
             }
         })

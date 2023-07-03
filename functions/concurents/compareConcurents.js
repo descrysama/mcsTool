@@ -9,19 +9,30 @@ const classInstances = {
 async function getCheapestFromProduct(product) {
     if (product.concurent_urls.length > 0) {
         let lowestPrice = product.price;
+        let lowestPriceOfConcurent = null;
         await Promise.all(
             product.concurent_urls.map(async (link, index) => {
                 let url = new URL(link.url)
                 if (classInstances[url.hostname]) {
                     let price = await classInstances[url.hostname].getData(link.url);
                     let supplier_price = product.wholesale_price
+                    if(lowestPriceOfConcurent == null) {
+                        lowestPriceOfConcurent = price;
+                    } else {
+                        if(lowestPriceOfConcurent > price) {
+                            lowestPriceOfConcurent = price;
+                        }
+                    }
+
                     if (price < lowestPrice) {
-                        if (price >= (supplier_price * 1.16)) {
+                        if (price - 1 >= (supplier_price * 1.16)) {
                             lowestPrice = price;
                         }
-                    } else {
-                        if(product.price < (supplier_price * 1.16)) {
-                            lowestPrice = (supplier_price * 1.16)
+                    }
+
+                    if((index + 1) == product.concurent_urls.length) {
+                        if(product.price == lowestPrice && lowestPriceOfConcurent >= (supplier_price * 1.16)) {
+                            lowestPrice = lowestPriceOfConcurent - 1;
                         }
                     }
                     
@@ -30,7 +41,6 @@ async function getCheapestFromProduct(product) {
         )
 
         let endPrice = (parseInt(lowestPrice * 1.2) + 0.99)
-
         return { ...product, price: (endPrice / 1.2) };
     } else {
         return null

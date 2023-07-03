@@ -47,7 +47,7 @@ module.exports.login = async(req, res) => {
         if (user) {
             if (comparePassword(password, user.password)) {
                 const token = jwt.sign(user.id, process.env.ACCESS_TOKEN_SECRET)
-                const maxAge = 3 * 24 * 60 * 60 * 1000;
+                const maxAge = 3 * 60 * 60 * 1000;
                 res.cookie("_auth", token, {
                     httpOnly: true,
                     maxAge
