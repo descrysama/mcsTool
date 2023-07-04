@@ -3,7 +3,7 @@ const cheerio = require("cheerio");
 
 
 class phoneExpert78 {
-    static async getData(url, name) {
+    static async getData(url) {
         try {
             const response = await new Promise((resolve, reject) => {
                 request(url, (error, response, body) => {

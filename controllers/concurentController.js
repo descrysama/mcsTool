@@ -344,16 +344,7 @@ async function addConcurentLink(req, res) {
 
         try {
             await Promise.all(links.map(async (link) => {
-                const checkIfAlreadyExists = await concurentLinks.findOne({
-                    where: {
-                        id_product: id_product,
-                        url: link
-                    }
-                });
-
-                if (!checkIfAlreadyExists) {
-                    await concurentLinks.create({ id_product: id_product, url: link });
-                }
+                await concurentLinks.create({ id_product: id_product, url: link });
             }));
 
             const concurentLinksUpdate = await concurentLinks.findAll({

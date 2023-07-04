@@ -1,11 +1,21 @@
 const bricoPhone = require('./website_scripts/bricoPhone');
+const Ebay = require('./website_scripts/ebay');
+const ecranTelephone = require('./website_scripts/ecranTelephone');
+const laPommeDiscount = require('./website_scripts/laPommeDiscount');
 const phoneExpert78 = require('./website_scripts/phoneExpert78');
+const pieceTelephone = require('./website_scripts/pieceTelephone');
 const ToutPourPhone = require('./website_scripts/toutPourPhone');
+const WorldItech = require('./website_scripts/WorldItech');
 
 const classInstances = {
     "www.tout-pour-phone.com": ToutPourPhone,
     "www.brico-phone.com": bricoPhone,
-    "www.phonexpert78.com": phoneExpert78
+    "www.phonexpert78.com": phoneExpert78,
+    "www.world-itech.com": WorldItech,
+    "www.lapommediscount.com": laPommeDiscount,
+    "ecrans-telephone.com": ecranTelephone,
+    "www.piecetelephone.fr": pieceTelephone,
+    "www.ebay.fr": Ebay
 };
 
 async function getCheapestFromProduct(product) {
