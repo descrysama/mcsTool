@@ -431,12 +431,6 @@ async function updateSingleProduct(req, res) {
 
 }
 
-// async function compareConcurents(req, res) {
-//     const allProducts = await getAllProducts.getAll();
-//     let finalArray = await allProducts.map((product, index) => getCheapestFromProduct(product));
-//     return res.json(finalArray)
-// }
-
 async function compareConcurents(req, res) {
     const allProducts = await getAllProducts.getAll();
     const final_array = [];

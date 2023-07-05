@@ -4,13 +4,13 @@ const cheerio = require("cheerio");
 
 class Ebay {
 
-    static getData(url) {
-        return new Promise((resolve, reject) => {
+    static async getData(url) {
+        return await new Promise((resolve, reject) => {
             request(url, (error, response, html) => {
-                if (!error && response.statusCode === 200) {
+                if (!error) {
                     const $ = cheerio.load(html);
                     const priceElement = $('span[itemprop="price"]');
-                    const price = priceElement.attr('content').trim();
+                    const price = priceElement.attr('content');
                     resolve(parseFloat(price/1.2));
                 } else {
                     reject(`Error: ${error}`);

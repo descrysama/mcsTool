@@ -13,7 +13,6 @@ class pieceTelephone {
                         .find('div.current-price')
                         .find('span[itemprop="price"]');
                     const price = priceElement.attr('content').trim();
-                    console.log(parseFloat(price/1.2))
                     resolve(parseFloat(price/1.2));
                 } else {
                     reject(`Error: ${error}`);
