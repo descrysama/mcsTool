@@ -413,7 +413,8 @@ async function updateSingleProduct(req, res) {
             } else {
                 let checkIfExists = await concurentLinks.findOne({
                     where: {
-                        url: link.url
+                        url: link.url,
+                        id_product: link.id_product
                     }
                 })
 
