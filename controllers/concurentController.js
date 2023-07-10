@@ -190,7 +190,7 @@ async function getByPage(req, res) {
                 return {
                     ...product.toJSON(),
                     price: parseFloat(product.price),
-                    name: name ? name.meta_title : null,
+                    name: name ? name.name : null,
                     concurent_urls: concurentLinksArray,
                     wholesale_price: parseFloat(product.wholesale_price),
                     image_url: images
