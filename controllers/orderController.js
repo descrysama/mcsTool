@@ -20,11 +20,16 @@ module.exports.getAll = async (req, res) => {
     try {
         const ordersList = await orders.findAll({
             where: {
-                user_id: res.locals.user.id
-            }
-        });
+              user_id: res.locals.user.id
+            },
+            include: [{
+              model: product_orders, // Use the correct model here
+              as: 'product_orders' // Use the correct alias here
+            }]
+          });
 
-        return res.status(200).json(product_ordersArray);
+        
+        return res.status(200).json(ordersList);
     } catch (error) {
         return res.status(500).json(error);
     }
