@@ -29,16 +29,11 @@ const db = {}
 db.Sequelize = Sequelize;
 db.sequelize = sequelize;
 
-db.products = require("./mcs_product.js")(sequelize, Sequelize);
-db.products_shop = require("./mcs_product_shop.js")(sequelize, Sequelize);
-db.stockAvailable = require("./mcs_stock_available.js")(sequelize, Sequelize);
-db.mobilaxBrandUrls = require("./mobilax_brand_urls.js")(sequelize, Sequelize);
-db.mobilaxLinks = require("./mobilax_links.js")(sequelize, Sequelize);
-db.utopyaLinks = require("./utopya_links.js")(sequelize, Sequelize);
-db.mcsImages = require("./mcs_image.js")(sequelize, Sequelize);
-db.mcsConfig = require("./config.js")(sequelize, Sequelize);
-db.mcsProductLang = require("./mcs_product_lang.js")(sequelize, Sequelize);
-db.users = require("./mcstool_users.js")(sequelize, Sequelize);
-db.concurentLinks = require("./concurent_links.js")(sequelize, Sequelize);
+db.customers = require("./customers.js")(sequelize, Sequelize);
+db.orders = require("./orders.js")(sequelize, Sequelize);
+db.btc_addresses = require("./btc_addresses.js")(sequelize, Sequelize);
+db.products = require("./products.js")(sequelize, Sequelize);
+db.product_orders = require("./product_orders.js")(sequelize, Sequelize);
+
 
 module.exports = db;

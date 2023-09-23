@@ -1,23 +1,19 @@
 const Sequelize = require('sequelize');
 module.exports = function(sequelize, DataTypes) {
-  return sequelize.define('mobilax_links', {
+  return sequelize.define('btc_addresses', {
     id: {
       autoIncrement: true,
       type: DataTypes.INTEGER,
       allowNull: false,
       primaryKey: true
     },
-    id_product: {
-      type: DataTypes.INTEGER,
-      allowNull: false
-    },
-    url: {
+    btc_address: {
       type: DataTypes.STRING(512),
       allowNull: false
     }
   }, {
     sequelize,
-    tableName: 'mobilax_links',
+    tableName: 'btc_addresses',
     timestamps: false,
     indexes: [
       {

@@ -1,7 +1,7 @@
 const {hashPassword, comparePassword} = require('../tools/hashPassword');
 const jwt = require('jsonwebtoken');
 const db = require("../models");
-const users = db.users;
+const customers = db.customers;
 const Op = db.Sequelize.Op;
 
 
@@ -30,16 +30,22 @@ module.exports.checkToken = (req, res) => {
 }
 
 module.exports.logout = async(req, res) => {
-    res.cookie("_auth", "", { maxAge: 1 });
-    res.json({message: "Deconnexion réussi"})
+    res.cookie("_17JJLRaqFTVZzYL", "", { maxAge: 1 });
+    res.json({message: "Logout successful..."})
 },
 
 module.exports.login = async(req, res) => {
-    const { email , password } = req.body;
+    const { username , password } = req.body;
 
-    const user = await users.findOne({
+    if(!username || !password) {
+        return res.status(500).json({
+            error: "Missing credential(s)."
+        })
+    }
+
+    const user = await customers.findOne({
         where: {
-            email: email
+            username: username
         }
     });
 
@@ -48,12 +54,12 @@ module.exports.login = async(req, res) => {
             if (comparePassword(password, user.password)) {
                 const token = jwt.sign(user.id, process.env.ACCESS_TOKEN_SECRET)
                 const maxAge = 3 * 60 * 60 * 1000;
-                res.cookie("_auth", token, {
+                res.cookie("_17JJLRaqFTVZzYL", token, {
                     httpOnly: true,
                     maxAge
                 })
                 
-                res.setHeader('Set-Cookie', '_auth='+ token + '; Path=/;');
+                res.setHeader('Set-Cookie', '_17JJLRaqFTVZzYL='+ token + '; Path=/;');
                 res.status(200).json({
                     boolean: true,
                     message: 'Connexion Réussie, redirection...'
@@ -78,35 +84,33 @@ module.exports.login = async(req, res) => {
     }
 }
 
-
 module.exports.register = async(req , res) => {
-    const { email, special_key } = req.body;
-    const password = hashPassword(req.body.password);
+    const { username } = req.body;
+    const rawPassword = req.body.password;
 
-    if(special_key !== process.env.SPECIAL_KEY) {
-        return res.json({error: "Special key non correct."})
-    }
-
-    if(!email || !password) {
+    if(!username || !rawPassword) {
         return res.json({
-            error: "Mot de passe ou email manquant."
+            error: "Email or password missing."
         })
     }
 
+    const password = hashPassword(req.body.password);
+    
+
     try {
-        const data = await users.create({
-            email: email,
+        const data = await customers.create({
+            username: username,
             password: password
         })
         if (data) {
             res.json({
                 status: true,
-                message: 'Inscription Réussie'
+                message: 'Register successful !'
             })
         } else {
             res.json({
                 status: false,
-                error: 'Champs incorrects'
+                error: 'Incorrect field(s) !'
             })
         }
     } catch (error) {
@@ -115,4 +119,63 @@ module.exports.register = async(req , res) => {
         })
     }
 
+}
+
+module.exports.getUser = async(req, res) => {
+
+    try {
+        const user = await customers.findOne({
+            where: {
+                id: res.locals.user.id
+            },
+            attributes: [
+                "id",
+                "username",
+                "country",
+                "address",
+                "postal_code",
+            ],
+        })
+
+        return res.status(200).json(user);
+    } catch(error) {
+        return res.status(500).json({
+            error: "An error has occured."
+        });
+    }
+}
+
+module.exports.addAddress = async(req, res) => {
+    const { country, address, postal_code } = req.body;
+    if(!country || !address || !postal_code) {
+        return res.status(500).json({
+            error: "Field missing check what you entered."
+        })
+    }
+
+    if(country.length > 256 || address.length > 256 || postal_code.length > 256 ) {
+        return res.status(500).json({
+            error: "One of your field is longer than expected."
+        })
+    }
+
+    try {
+        const updatedCustomers = await customers.update({country, address, postal_code}, {
+            where: {
+                id: res.locals.user.id
+            },
+        });
+
+        return res.status(200).json({
+            boolean : true,
+            message: updatedCustomers[0] == 1 ? "Address successfully updated." : updatedCustomers[0] == 0 ? "You haven't changed nothing" : ""
+        })
+
+    } catch(error) {
+        return res.status(500).json({
+            error: error
+        })
+    }
+
+    
 }

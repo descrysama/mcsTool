@@ -24,17 +24,11 @@ db.sequelize.sync()
     console.log("Failed to connect to db : " + err.message);
   });
 
-
-
-const productRoutes = require('./routes/productRoutes');
-const configRoutes = require('./routes/configRoutes');
 const userRoutes = require('./routes/userRoutes');
-const concurentRoutes = require('./routes/concurentRoutes');
+const orderRoutes = require('./routes/orderRoutes');
 
-app.use('/products', productRoutes);
-app.use('/config', configRoutes);
 app.use('/user', userRoutes);
-app.use('/concurent', concurentRoutes);
+app.use('/order', orderRoutes);
 
 
-app.listen(port, () => console.log('Serveur ouvert sur le port : ' + port))
+app.listen(port, () => console.log('Server opened on : ' + port))

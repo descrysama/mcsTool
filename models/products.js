@@ -1,35 +1,36 @@
 const Sequelize = require('sequelize');
 module.exports = function(sequelize, DataTypes) {
-  return sequelize.define('config', {
+  return sequelize.define('products', {
     id: {
       autoIncrement: true,
       type: DataTypes.INTEGER,
       allowNull: false,
       primaryKey: true
     },
-    mobilax_email: {
+    name: {
       type: DataTypes.STRING(256),
       allowNull: false
     },
-    mobilax_password: {
+    description: {
       type: DataTypes.STRING(256),
-      allowNull: false
+      allowNull: true
     },
-    utopya_email: {
-      type: DataTypes.STRING(256),
-      allowNull: false
+    img: {
+      type: DataTypes.STRING(512),
+      allowNull: true
     },
-    utopya_password: {
-      type: DataTypes.STRING(256),
-      allowNull: false
+    stock: {
+      type: DataTypes.INTEGER,
+      allowNull: false,
+      defaultValue: 0
     },
-    mcs_image_key: {
-      type: DataTypes.STRING(256),
+    price: {
+      type: DataTypes.FLOAT,
       allowNull: false
     }
   }, {
     sequelize,
-    tableName: 'config',
+    tableName: 'products',
     timestamps: false,
     indexes: [
       {

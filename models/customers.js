@@ -1,13 +1,13 @@
 const Sequelize = require('sequelize');
 module.exports = function(sequelize, DataTypes) {
-  return sequelize.define('mcstool_users', {
+  return sequelize.define('customers', {
     id: {
       autoIncrement: true,
       type: DataTypes.INTEGER,
       allowNull: false,
       primaryKey: true
     },
-    email: {
+    username: {
       type: DataTypes.STRING(256),
       allowNull: false
     },
@@ -15,14 +15,21 @@ module.exports = function(sequelize, DataTypes) {
       type: DataTypes.STRING(256),
       allowNull: false
     },
-    status: {
-      type: DataTypes.BOOLEAN,
-      allowNull: true,
-      defaultValue: 1
+    country: {
+      type: DataTypes.STRING(256),
+      allowNull: false
+    },
+    address: {
+      type: DataTypes.STRING(256),
+      allowNull: false
+    },
+    postal_code: {
+      type: DataTypes.STRING(256),
+      allowNull: false
     }
   }, {
     sequelize,
-    tableName: 'mcstool_users',
+    tableName: 'customers',
     timestamps: false,
     indexes: [
       {
